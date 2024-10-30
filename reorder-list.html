@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Re-orderable List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      max-width: 400px;
+      margin: 20px auto;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    li {
+      padding: 15px;
+      margin: 5px;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 18px;
+      border-radius: 5px;
+      cursor: move;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    li.dragging {
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Re-orderable List</h1>
+
+  <ul id="reorder-list">
+    <li draggable="true">Item 1</li>
+    <li draggable="true">Item 2</li>
+    <li draggable="true">Item 3</li>
+    <li draggable="true">Item 4</li>
+    <li draggable="true">Item 5</li>
+  </ul>
+
+  <script>
+    const list = document.getElementById('reorder-list');
+    let draggedItem = null;
+
+    list.addEventListener('dragstart', (e) => {
+      draggedItem = e.target;
+      e.target.classList.add('dragging');
+    });
+
+    list.addEventListener('dragend', (e) => {
+      e.target.classList.remove('dragging');
+      draggedItem = null;
+    });
+
+    list.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      const afterElement = getDragAfterElement(list, e.clientY);
+      if (afterElement == null) {
+        list.appendChild(draggedItem);
+      } else {
+        list.insertBefore(draggedItem, afterElement);
+      }
+    });
+
+    function getDragAfterElement(container, y) {
+      const draggableElements = [...container.querySelectorAll('li:not(.dragging)')];
+
+      return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+          return { offset: offset, element: child };
+        } else {
+          return closest;
+        }
+      }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+  </script>
+
+</body>
+</html>
